@@ -1,8 +1,4 @@
-
-/*-------------------------------------------------REGLAS DE JUEGO---------------------------------------------*/
-
-/* CARTAS*/
-
+/*CARTAS CON NUMERO Y PALO*/
 card(a,c).
 card(2,c).
 card(3,c).
@@ -59,31 +55,42 @@ card(j,d).
 card(q,d).
 card(k,d).
 
-/*VALUE*/
+/*VALOR DE LA CARTA */
 
 value(card(a,_), 1).
-value(card(a,_), 10).
+value(card(a,_), 11).
 value(card(k,_), 10).
 value(card(j,_), 10).
 value(card(q,_), 10).
-value(card(N,_), N).
+value(card(2,_),2).
+value(card(3,_),3).
+value(card(4,_),4).
+value(card(5,_),5).
+value(card(6,_),6).
+value(card(7,_),7).
+value(card(8,_),8).
+value(card(9,_),9).
+value(card(10,_),10).
 
-/* VALOR CARTA */
+/*VALORES POSIBLES DE LAS CARTAS*/
 
-valorCarta(2,2).
-valorCarta(3,3).
-valorCarta(4,4).
-valorCarta(5,5).
-valorCarta(6,6).
-valorCarta(7,7).
-valorCarta(8,8).
-valorCarta(9,9).
-valorCarta(10,10).
-valorCarta(j,10).
-valorCarta(q,10).
-valorCarta(k,10).
-valorCarta(a,11).
-valorCarta(a,1).
+valor_carta(2,2).
+valor_carta(3,3).
+valor_carta(4,4).
+valor_carta(5,5).
+valor_carta(6,6).
+valor_carta(7,7).
+valor_carta(8,8).
+valor_carta(9,9).
+valor_carta(10,10).
+valor_carta(j,10).
+valor_carta(q,10).
+valor_carta(k,10).
+valor_carta(a,11).
+valor_carta(a,1).
+
+
+
 
 /*value(carta(Numero,Palo),ValorRetorno)*/
 
@@ -91,42 +98,26 @@ value(c(N,_),Valor):-
   valorCarta(N,Valor).
 
 
+/*Cuento Los As*/
+
+contar_aces([], 0).
+
+contar_aces([card(a,_) | Resto], N) :-
+    contar_aces(Resto, N1),
+    N is N1 + 1.
+
+contar_aces([card(_,_) | Rest], N) :-
+    contar_aces(Rest, N).
+
 /*HAND*/
+hand([], 0).
+hand([Carta | Resto], ValorTotal) :- hand(Resto, ValorAuxiliar),value(Carta, ValorCarta),
 
-/*SUMA LOS ELEMENTOS DE UNA LISTA*/
-
-suma([], 0).
-
-suma([Elemento| Resto], Suma):-
-    suma(Resto, SumaAux),
-    Suma is Elemento + SumaAux.
-
-
-/*LISTA CON EL VALOR DE LA CARTA*/
-lista_aux(ValorCartita,[ValorCartita]).
-
-
-/*CONCATENO LAS LISTAS_AUX */
-
-concatenar([Elemento], Lista, [Elemento|Lista]):-!.
-
-concatenar([Elemento|Resto], Lista, [Elemento|ResultadoAux]):-
-    concatenar(Resto, Lista, ResultadoAux).
-
-/* DADA UNA MANO INDICA EL VALOR O VALORES DE LA MANO*/
-
-hand([],0).
-
-hand([Hand|RestoHand],ValorManoTotal):-
-  hand(RestoHand,ValorManoAux),
-  value(Hand,ValorCarta),
-  lista_aux(ValorCarta,Lista),
-  concatenar(Lista,[],ListaAux),
-  suma(ListaAux,ValorMano),
-  ValorManoTotal is ValorMano + ValorManoAux.
+ ValorTotal is ValorAuxiliar + ValorCarta.
 
 
 /*VEINTIUNO*/
+
 /*INDICA SI LA MANO SUMA EXACTAMENTE 21*/
 
 twentyone(Hand):-
@@ -143,16 +134,9 @@ over(Hand):-
 
 /*LONGITUD*/
 
-/*DA LA LONGITUD DE UNA LISTA*/
+longitud([],0).
 
-longitud_aux([],Cuneta,Cuenta).
-
-loongitud_aux([_|Resto],CuentaParcial,Resultado):-
-    NuevaCuentaParcial is CuentaParcial+1,
-    longitud_aux(Resto,NuevaCuentaParcial,Resultado).
-
-longitud(Lista,Resultado):- longitud_aux(Lista,0,Resultado).
-
+longitud([_|Resto],LongitudLista) :- longitud(Resto,N) , LongitudLista is N+1 .
 /*BLACKJACK*/
 
 /*INDICA SI LA MANO ES UN BLACKJACK, O SEA , SI SUMA 21 CON SOLO 2 CARTAS*/
@@ -160,35 +144,18 @@ longitud(Lista,Resultado):- longitud_aux(Lista,0,Resultado).
 blackjack(Hand):-
   longitud(Hand,CantidadCartas),
   CantidadCartas is 2,
-  twentyone(Hand).
-
-/*Veo si la mano es igual o menor a 16*/
-
-menorA16(Hand):-
-  hand(Hand,X),
-  16 >= X.
-
-/*Veo si la mano es igual o mayor a 17*/
-
-mayorA17(Hand):-
-  hand(Hand,X),
-  17 =< X.
+  twentyone(Hand),print('Ganaste Capo').
 
 
-/*Veo si la mano es menor a 17*/
-menorA17(Hand):-
-  hand(Hand,X),
-  17 > X.
+
+/*CRUPIER*/
+/*Si No Tengo aces y tengo una mano de menos de 16 sigo jugando */
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),CantidadAces is 0,hand(Hand,ValorMano),ValorMano =< 16,print('Sigo Jugando'),print(ValorMano),!.
+
+/*Si tengo mas de 17 me plaanto ver de como implmentar el hard deler y el soft*/
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),CantidadAces is 0,hand(Hand,ValorMano),ValorMano >= 17,print('Me Planto'),print(ValorMano),!.
 
 
-/*................................CRUPIER.....................................*/
 
-/*soft_dealer : Se planta con una mano de 17 suave. Esto es, el As valiendo 11.*/
-
-soft_dealer(Hand):- menorA17(Hand).
-
-/*hard_dealer : Sigue jugando con una mano de 17 suave.*/
-
-hard_dealer(Hand):-mayorA17(Hand).
-
-/*----------------------------------------JUGADOR------------------------------------*/
