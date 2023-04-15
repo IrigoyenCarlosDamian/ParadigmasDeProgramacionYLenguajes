@@ -106,8 +106,8 @@ contar_aces([card(a,_) | Resto], N) :-
     contar_aces(Resto, N1),
     N is N1 + 1.
 
-contar_aces([card(_,_) | Rest], N) :-
-    contar_aces(Rest, N).
+contar_aces([card(_,_) | Resto], N) :-
+    contar_aces(Resto, N).
 
 /*HAND*/
 hand([], 0).
@@ -147,15 +147,32 @@ blackjack(Hand):-
   twentyone(Hand),print('Ganaste Capo').
 
 
+hand_con_aces([], _, 0).
+hand_con_aces([card(a,_)|Resto], NumAces, ValorTotal):-
+    NumAces > 0,
+    NumAcesRestantes is NumAces - 1,
+    hand_con_aces(Resto, NumAcesRestantes, ValorAuxiliar),
+    ValorTotal is ValorAuxiliar + 11.
+hand_con_aces([Carta|Resto], NumAces, ValorTotal):-
+    value(Carta, ValorCarta),
+    hand_con_aces(Resto, NumAces, ValorAuxiliar),
+    ValorTotal is ValorAuxiliar + ValorCarta.
+
 
 /*CRUPIER*/
 /*Si No Tengo aces y tengo una mano de menos de 16 sigo jugando */
+
+/*Tengo que ver el caso en el que no tenga aces */
+/*Si La Cantidad de aces es 0 entonces el valor de la mano lo determino con Hand*/
+/*Si tengo aces tengo que ver si tanto con el valor de as con 11 y con 1  tengo menos de 16 si es asi sigo jugado*/
 crupier_play(Hand):-
-  contar_aces(Hand,CantidadAces),CantidadAces is 0,hand(Hand,ValorMano),ValorMano =< 16,print('Sigo Jugando'),print(ValorMano),!.
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 0,
+  hand(Hand,ValorMano),ValorMano=< 16,
+  print(ValorMano).
 
-/*Si tengo mas de 17 me plaanto ver de como implmentar el hard deler y el soft*/
 crupier_play(Hand):-
-  contar_aces(Hand,CantidadAces),CantidadAces is 0,hand(Hand,ValorMano),ValorMano >= 17,print('Me Planto'),print(ValorMano),!.
-
-
-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces > 0,
+  hand_con_aces(hand,CantidadAces,ValorMano),ValorMano=<16,
+  print(ValorMano).
