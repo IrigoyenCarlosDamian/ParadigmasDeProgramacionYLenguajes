@@ -147,16 +147,31 @@ blackjack(Hand):-
   twentyone(Hand),print('Ganaste Capo').
 
 
-hand_con_aces([], _, 0).
-hand_con_aces([card(a,_)|Resto], NumAces, ValorTotal):-
-    NumAces > 0,
-    NumAcesRestantes is NumAces - 1,
-    hand_con_aces(Resto, NumAcesRestantes, ValorAuxiliar),
-    ValorTotal is ValorAuxiliar + 11.
-hand_con_aces([Carta|Resto], NumAces, ValorTotal):-
-    value(Carta, ValorCarta),
-    hand_con_aces(Resto, NumAces, ValorAuxiliar),
-    ValorTotal is ValorAuxiliar + ValorCarta.
+/*Valor De La Mano Con As igual 1*/
+
+/*Cuento el valor de las cartas sin tener en cuenta el as ya que se que vale 1 y 
+la regla se llama cuando la cantidad de as es 1 entonces al valor total de la mano sin as le sumo 1 y 
+tengo el valor de la mano asumiendo el valor del as como 1  */
+
+valor_mano_con_as1([], 0).
+valor_mano_con_as1([c(N,_)|Resto], ValorTotal) :-
+    N \= a,
+    valor_carta(N, ValorCarta),
+    valor_mano_con_as1(Resto, ValorResto),
+    ValorTotal is ValorCarta + ValorResto + 1.
+
+/*Valor De La Mano Con As igual 11*/
+
+/*Cuento el valor de las cartas sin tener en cuenta el as ya que se que vale 11 y 
+la regla se llama cuando la cantidad de as es 1 entonces al valor total de la mano sin as le sumo 11 y 
+tengo el valor de la mano asumiendo el valor del as como 11  */
+
+valor_mano_con_as11([], 0).
+valor_mano_con_as11([c(N,_)|Resto], ValorTotal) :-
+    N \= a,
+    valor_carta(N, ValorCarta),
+    valor_mano_con_as11(Resto, ValorResto),
+    ValorTotal is ValorCarta + ValorResto + 11.
 
 
 /*CRUPIER*/
@@ -164,15 +179,33 @@ hand_con_aces([Carta|Resto], NumAces, ValorTotal):-
 
 /*Tengo que ver el caso en el que no tenga aces */
 /*Si La Cantidad de aces es 0 entonces el valor de la mano lo determino con Hand*/
-/*Si tengo aces tengo que ver si tanto con el valor de as con 11 y con 1  tengo menos de 16 si es asi sigo jugado*/
-crupier_play(Hand):-
-  contar_aces(Hand,CantidadAces),
-  CantidadAces is 0,
-  hand(Hand,ValorMano),ValorMano=< 16,
-  print(ValorMano).
 
 crupier_play(Hand):-
   contar_aces(Hand,CantidadAces),
-  CantidadAces > 0,
-  hand_con_aces(hand,CantidadAces,ValorMano),ValorMano=<16,
-  print(ValorMano).
+  CantidadAces is 0,
+  hand(Hand,ValorMano),ValorMano=< 16.
+
+/*Si tengo  1 as tengo que ver que el valor de la mano sea 16 o menos con as valiendo 1 y con as valiendo 11 */
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,valor_mano_con_as1(Hand,ValorConAs1),ValorConAs1=<16,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11=<16
+
+  
+
+/*Si tengo mas de 1 as tengo que ver el valor de la mano sin los aces para ver que valor me conviene que tomen los aces*/
+
+
+/*Si no tengo aces y la mano vale mas de  17 me planto*/
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 0,
+  hand(Hand,ValorMano),ValorMano> 17.
+
+/*si tengo un solo as y la mano con el as valiendo 1 y valiendo 11 el valor total de la mano es mayor a 17 me planto*/
+crupier_play(Hand):-
+contar_aces(Hand,CantidadAces),
+CantidadAces is 1,valor_mano_con_as1(Hand,ValorConAs1),ValorConAs1 >17,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11>17
+
+
+/*si tengo mas de 1 as tengo que ver el valor de la mano sin el as para ver que  valor me conviene que  tomo el as*/
+
