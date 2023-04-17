@@ -174,6 +174,16 @@ valor_mano_con_as11([c(N,_)|Resto], ValorTotal) :-
     ValorTotal is ValorCarta + ValorResto + 11.
 
 
+/*-*/
+
+valor_mano_sin_as([], 0).
+valor_mano_sin_as([c(N,_)|Resto], ValorTotal) :-
+    N \= a,
+    valor_carta(N, ValorCarta),
+    valor_mano_sin_as(Resto, ValorResto),
+    ValorTotal is ValorCarta + ValorResto.
+
+
 /*CRUPIER*/
 /*Si No Tengo aces y tengo una mano de menos de 16 sigo jugando */
 
@@ -194,6 +204,12 @@ crupier_play(Hand):-
 
 /*Si tengo mas de 1 as tengo que ver el valor de la mano sin los aces para ver que valor me conviene que tomen los aces*/
 
+soft_deler(Hand):-
+  print('Me Planto Con 17 Suave').
+
+
+har_deler(Hand):-
+  print('Sigo Jugando')
 
 /*Si no tengo aces y la mano vale mas de  17 me planto*/
 crupier_play(Hand):-
@@ -203,8 +219,18 @@ crupier_play(Hand):-
 
 /*si tengo un solo as y la mano con el as valiendo 1 y valiendo 11 el valor total de la mano es mayor a 17 me planto*/
 crupier_play(Hand):-
-contar_aces(Hand,CantidadAces),
-CantidadAces is 1,valor_mano_con_as1(Hand,ValorConAs1),ValorConAs1 >17,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11>17
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,valor_mano_con_as1(Hand,ValorConAs1),ValorConAs1 >17,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11>17
+
+/*Si Tengo un solo as y vale 11 tengo que ver si con el resto de la mano obtengo exactamente 17 estoy en presencia de un 17 suave */
+
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 is 17,valor_mano_sin_as(Hand,ValorSinAs),ValorSinAs is 5,soft_deler(Hand).
+
+crupier_play(Hand):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 is 17,valor_mano_sin_as(Hand,ValorSinAs),ValorSinAs> 5,har_deler(Hand).
 
 
 /*si tengo mas de 1 as tengo que ver el valor de la mano sin el as para ver que  valor me conviene que  tomo el as*/
