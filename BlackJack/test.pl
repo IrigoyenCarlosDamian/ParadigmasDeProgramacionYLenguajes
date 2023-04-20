@@ -237,6 +237,62 @@ crupier_play(Hand):-
   contar_aces(Hand,CantidadAces),
   CantidadAces is 1,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 is 17,contar_cartas(Handa,CantidadCartas),CantidadCartas>2,har_deler(Hand).
 
+stand_jugador():
+  print('Me Planto').
+
+hit_jugador():
+  print('Pido Otra Carta').  
+
+/*Estrategia Juego Seguro*/
+
+igual19(Hand,ValorMano):-
+     contar_aces(Hand,CantidadAces),
+     CantidadAces is 0,
+     hand(Hand,ValorMano),ValorMano>=19.
+
+igual19_con_as(Hand,ValorMano):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 >= 19,stand_jugador().
+
+igual19_sin_as(Hand,ValorMano):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 0,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 >= 19,stand_jugador().
+
+
+menor19_con_as(Hand,ValorMano):-
+ contar_aces(Hand,CantidadAces),
+ CantidadAces is 1,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 < 19,hit_jugador().
+
+
+menor19_sin_as(Hand,ValorMano):-
+ contar_aces(Hand,CantidadAces),
+ CantidadAces is 0,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 < 19,hit_jugador().
+
 
 /*si tengo mas de 1 as tengo que ver el valor de la mano sin el as para ver que  valor me conviene que  tomo el as*/
 
+play(Hand,Crupier,Cards):-
+  igual19_sin_as(Hand,ValorMano).
+
+play(Hand,Crupier,Cards):-
+  igual19_con_as(Hand,ValorMano).
+
+play(Hand,Crupier,Cards):-
+  menor19_sin_as(Hand,ValorMano).
+
+play(Hand,Crupier,Cards):-
+  menor19_con_as(Hand,ValorMano).
+
+
+
+
+equal_lists([], []).
+equal_lists([X|Xs], [Y|Ys]) :-
+    X = Y,
+    equal_lists(Xs, Ys).
+
+argumento_es_jugador(Argumento) :-
+    string_chars(Jugador, "jugador"),
+    string_chars(Argumento, ArgumentoChars),
+    equal_lists(Jugador, ArgumentoChars),
+    print('Es El Jugador').
