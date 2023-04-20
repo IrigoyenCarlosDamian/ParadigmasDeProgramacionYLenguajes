@@ -142,6 +142,37 @@ blackjack(Hand):-
 
 
 /*ESTRATEGIA JUGADOR*/
+stand_jugador():
+  print('Me Planto').
+
+hit_jugador():
+  print('Pido Otra Carta').  
+
+
+/*¿que hago aca?*/
+igual19(Hand,ValorMano):-
+     contar_aces(Hand,CantidadAces),
+     CantidadAces is 0,
+     hand(Hand,ValorMano),ValorMano>=19.
+
+igual19_con_as(Hand,ValorMano):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 1,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 >= 19,stand_jugador().
+
+igual19_sin_as(Hand,ValorMano):-
+  contar_aces(Hand,CantidadAces),
+  CantidadAces is 0,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 >= 19,stand_jugador().
+
+
+menor19_con_as(Hand,ValorMano):-
+ contar_aces(Hand,CantidadAces),
+ CantidadAces is 1,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 < 19,hit_jugador().
+
+
+menor19_sin_as(Hand,ValorMano):-
+ contar_aces(Hand,CantidadAces),
+ CantidadAces is 0,contar_cartas(Hand,CantidadCartas),CantidadCartas is 2,valor_mano_con_as11(Hand,ValorConAs11),ValorConAs11 < 19,hit_jugador().
+
 
 /*ESTRATREGIA CRUPIER*/
 
@@ -179,7 +210,19 @@ valor_mano_con_todas_las_combinaciones_aux(Hand, CantidadAcesRestantes, ValorAct
 /*tambien deberia de poder comprobar si con el valor de la mano tengo un over y cuando sumo 21 para decier quien gano eso no se como hacerlo*/
 
 juega_jugador(Cartas):-
-    print('Soy El Jugador').
+(
+  igual19_sin_as(Hand,ValorMano)->
+  print('Se Ejecuto igual 19 sin as')
+; 
+  igual19_con_as(Hand,ValorMano)->
+  print('Se Ejecuto iugal a 19 con as')
+; 
+  menor19_sin_as(Hand,ValorMano)->
+  print('Se Ejecuto menor 19 sin as')
+; 
+  menor19_con_as(Hand,ValorMano)->
+  print('Se Ejecuto menor 19 con as')
+).
 
 
 /*                                   CRUPIER                                                       */
@@ -234,4 +277,5 @@ play(Argumento, Cartas) :-
     juega_crupier(Cartas)
   ;
     write('Error: el argumento debe ser "Jugador" o "Crupier".')
+    /*¿se deberia agregar un comando crupier hard y un comanfo crupier soft?*/
   ).
